@@ -1,4 +1,5 @@
 import React,{Suspense} from "react";
+import PropTypes from 'prop-types'
 import "./component.scss"
 import LeftIcon from "./chevron-left-solid.svg"
 import RightIcon from "./chevron-right-solid.svg"
@@ -72,21 +73,49 @@ class Component0 extends React.Component {
                 </div>)
     }
 
-    render() {
-        const {totalData, fields, data, pagination} = this.props;
+    getHeader(){
+        const {groups=[], fields} = this.props;
+        const enableGroup = groups.length>0;
+        const normalTh=(item)=>{
+            const {name,fieldName}=item
+            return <th key={name+'-'+fieldName} className={'field-'+fieldName}>{name}</th>
+        }
+        return (
+            <thead>
+                <tr>
+                    {!enableGroup && fields.map(normalTh)}
+                    {enableGroup && fields.map(item => {
+                        const {name, fieldName} = item;
+                        const isGroup = !groups.some(p=>p.fieldNames.includes(fieldName))
+                        if (isGroup){
+                            const rowspan = isGroup ? {rowSpan:2}:{}
+                            return <th key={name+'-'+fieldName} className={'field-'+fieldName} {...rowspan}>{name}</th>
+                        }else {
+                            const group = groups.find(p=>p.fieldNames.includes(item.fieldName))
+                            const {name:groupName, fieldNames}=group
+                            if (group && fieldNames[0] == item.fieldName) {
+                                return <th key={name+'-'+fieldName} className={'field-'+fieldNames.join('-')} colSpan={fieldNames.length}>{groupName}</th>
+                            }
+                        }
 
+                    })}
+                </tr>
+                {enableGroup && <tr>
+                    {fields.filter(p=>groups.some(q=>q.fieldNames.includes(p.fieldName))).map(({name,fieldName})=>(
+                        <td key={`${name}-${fieldName}`}>{name}</td>
+                    ))}
+                </tr>}
+            </thead>
+        )
+    }
+
+    render() {
+        const {totalData, groups=[], fields, data, pagination} = this.props;
         return (
             <div className={'se-react-data-list ' + (this.props.className || '')}>
                 <div className="table-wrapper">
                     <table>
-                        <thead>
-                        <tr>
-                            {fields.map(item => {
-                                const {name, fieldName} = item;
-                                return <th key={name+'-'+fieldName} className={'field-'+fieldName}>{name}</th>
-                            })}
-                        </tr>
-                        </thead>
+                        {this.getHeader()}
                         <tbody>
                         {
                             (data.length <= 0)? (<tr><td className="cell-notification" colSpan={fields.length}>nothing</td></tr>) :
@@ -138,3 +167,21 @@ class Component0 extends React.Component {
 const Component = withTranslation(undefined, { withRef: true })(Component0)
 export default Component;
 
+Component.propTypes = {
+    enableRowsCount:PropTypes.bool,
+    defaultLanguage:PropTypes.string,
+    keyField:PropTypes.string,
+    fields:PropTypes.arrayOf(PropTypes.exact({
+        fieldName:PropTypes.string,
+        name:PropTypes.string,
+        render:PropTypes.func
+    })),
+    pagination:PropTypes.exact({
+        pageSize: PropTypes.number,
+        rowsCount: PropTypes.number
+    }),
+    data:PropTypes.array,
+    totalData: PropTypes.object,
+    rowsCount: PropTypes.number,
+    onPageChange:PropTypes.func,
+}

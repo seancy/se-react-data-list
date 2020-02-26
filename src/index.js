@@ -23,6 +23,9 @@ const numRender={
     render:v=>`--${v}--`
 }
 
+let groups = [
+    { name:'names', fieldNames:['first_name', 'last_name']},
+]
 let fields = [
     //{ name:'', fieldName:'id' },
     /*{name: 'Name', fieldName: 'userName'},
@@ -34,7 +37,7 @@ let fields = [
     {name: 'last_name', fieldName: 'last_name'},
     {name: 'num', fieldName: 'num', ...numRender},
     {name: 'avatar', fieldName: 'avatar'},
-    { name:'first_name1', fieldName:'first_name' },
+    //{ name:'first_name1', fieldName:'first_name' },
     /*{ name:'last_name1', fieldName:'last_name' },
     { name:'first_name2', fieldName:'first_name' },
     { name:'last_name2', fieldName:'last_name' },
@@ -138,7 +141,7 @@ class App extends React.Component {
                 <Component ref={this.myRef} enableRowsCount={true}
                            defaultLanguage="en"
                            keyField="id" {...this.state}
-                           fields={fields} pagination={pagination}
+                           {...{fields}} pagination={pagination}
                            onPageChange={this.fetchData.bind(this)}
                 />
             </div>

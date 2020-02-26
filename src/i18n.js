@@ -18,20 +18,27 @@ i18n
         resources: {
             en: {
                 translation: {
-                    "key": "hello world",
-                    "test0": "test0",
                     "Page":"Page",
                     "of":"of"
                 }
             },
-            zh_CN: {
+            zh_cn: {
                 translation:{
-                    "key":"你好 世界",
-                    "test0": "测试0",
                     "Page": "第",
                     "of": "页,共"
                 }
-
+            },
+            fr: {
+                translation:{
+                    "Page": "Page",
+                    "of": "de"
+                }
+            },
+            pt_br: {
+                translation:{
+                    "Page": "Página",
+                    "of": "de"
+                }
             }
         },
 

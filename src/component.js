@@ -14,6 +14,14 @@ class Component0 extends React.Component {
             pageNo:1 //props.pagination.pageNo
         };
 
+        if (props.defaultLanguage){
+            const {t, i18n}=this.props
+            i18n.changeLanguage(props.defaultLanguage.replace('-','_'));
+        }
+    }
+
+    resetPage() {
+        this.setState({pageNo:1 })
     }
 
     firePageChange(){
@@ -75,36 +83,46 @@ class Component0 extends React.Component {
                         <tr>
                             {fields.map(item => {
                                 const {name, fieldName} = item;
-                                return <th key={fieldName} className={'field-'+fieldName}>{name}</th>
+                                return <th key={name+'-'+fieldName} className={'field-'+fieldName}>{name}</th>
                             })}
                         </tr>
                         </thead>
                         <tbody>
                         {
                             (data.length <= 0)? (<tr><td className="cell-notification" colSpan={fields.length}>nothing</td></tr>) :
-                            data.map(row => {
-                            const id = row[this.props.keyField || 'id'];
-                            return (
-                                <tr key={id}>
-                                    {fields.map(item=>{
-                                        let cellValue = ''
-                                        const {name, fieldName} = item;
-                                        if (Object.keys(row).includes(fieldName)){
-                                            cellValue = row[fieldName] || '-'
-                                        }
-                                        return (<td key={name + '-' + fieldName} className={'field-'+fieldName}>
-                                            {cellValue || ''}
-                                        </td>)
-                                    })}
-                                </tr>
-                            )
-                        })}
+                            data.map((row,index) => {
+                                const id = row[this.props.keyField || 'id'];
+                                return (
+                                    <tr key={id+'-'+index}>
+                                        {fields.map(item=>{
+                                            let cellValue = ''
+                                            const DEFAULT_SIGN = '—'
+                                            const {name, fieldName} = item;
+                                            const isIncludeFieldName = Object.keys(row).includes(fieldName)
+                                            if (typeof(item.render)=='function'){
+                                                    cellValue = item.render(row[fieldName])
+                                            }else{
+                                                if (isIncludeFieldName){
+                                                    cellValue = row[fieldName]
+                                                    cellValue = (cellValue === null || cellValue === '') ? DEFAULT_SIGN : cellValue.toString()
+                                                }else{
+                                                    cellValue = DEFAULT_SIGN
+                                                }
+                                            }
+                                            return (<td key={name + '-' + fieldName} className={'field-'+fieldName}>
+                                                {cellValue || ''}
+                                            </td>)
+                                        })}
+                                    </tr>
+                                )
+                            }
+                        )}
                         </tbody>
                         <tfoot>
                         <tr>
                             {fields.filter(p=>p!=null).map(item => {
-                                const {fieldName} = item;
-                                return <th key={fieldName}>{totalData[fieldName] || ''}</th>
+                                const {name,fieldName} = item;
+                                return <th key={name+'-'+fieldName}>{totalData[fieldName] || ''}</th>
                             })}
                         </tr>
                         </tfoot>
@@ -117,7 +135,6 @@ class Component0 extends React.Component {
     }
 }
 
-const Component = withTranslation()(Component0)
-
+const Component = withTranslation(undefined, { withRef: true })(Component0)
 export default Component;
 

@@ -73,88 +73,111 @@ class Component0 extends React.Component {
                 </div>)
     }
 
+    getFieldsWithoutKeyField(){
+        const {keyField,fields}=this.props
+        return fields.filter(f=>f.fieldName && f.fieldName != keyField );
+    }
+
     getHeader(){
-        const {groups=[], fields} = this.props;
-        const enableGroup = groups.length>0;
-        const normalTh=(item)=>{
-            const {name,fieldName}=item
-            return <th key={name+'-'+fieldName} className={'field-'+fieldName}>{name}</th>
-        }
+        const {subFields} = this.props;
+        const fields = this.getFieldsWithoutKeyField()
         return (
             <thead>
                 <tr>
-                    {!enableGroup && fields.map(normalTh)}
-                    {enableGroup && fields.map(item => {
-                        const {name, fieldName} = item;
-                        const isGroup = !groups.some(p=>p.fieldNames.includes(fieldName))
-                        if (isGroup){
-                            const rowspan = isGroup ? {rowSpan:2}:{}
-                            return <th key={name+'-'+fieldName} className={'field-'+fieldName} {...rowspan}>{name}</th>
-                        }else {
-                            const group = groups.find(p=>p.fieldNames.includes(item.fieldName))
-                            const {name:groupName, fieldNames}=group
-                            if (group && fieldNames[0] == item.fieldName) {
-                                return <th key={name+'-'+fieldName} className={'field-'+fieldNames.join('-')} colSpan={fieldNames.length}>{groupName}</th>
-                            }
-                        }
-
+                    {fields.map(item=>{
+                        const {colSpan}=item
+                        const defaultRowSpan = subFields && !colSpan ? 2 : null
+                        const {name, fieldName ,rowSpan=defaultRowSpan} = item;
+                        const keyStr = fieldName
+                        return <th key={keyStr} className={`${colSpan ? 'top-header':keyStr}`} rowSpan={rowSpan} colSpan={subFields && colSpan}>{name}</th>
                     })}
+
                 </tr>
-                {enableGroup && <tr>
-                    {fields.filter(p=>groups.some(q=>q.fieldNames.includes(p.fieldName))).map(({name,fieldName})=>(
-                        <td key={`${name}-${fieldName}`}>{name}</td>
-                    ))}
+                {subFields && <tr>
+                    {subFields.map(item=>{
+                        const {name, fieldName, colSpan,rowSpan} = item;
+                        const keyStr = fieldName.replace(/[- /:]/g,'_')
+                        return <th key={keyStr} rowSpan={rowSpan} colSpan={colSpan}>{name}</th>
+                    })}
                 </tr>}
+
             </thead>
         )
     }
 
+    getRow(row, index){
+        const id = row[this.props.keyField || 'id'];
+        const {subFields=[], cellRender} = this.props
+        const fields = this.getFieldsWithoutKeyField()
+        const DEFAULT_SIGN = '—'
+        return (
+            <tr key={id+'-'+index}>
+                {fields && fields.length ? fields.filter(item=>item.colSpan ==null || item.colSpan=='')
+                    .concat(subFields)
+                    .map(item=>{
+                    let cellValue = ''
+                    const {name, fieldName, className=''} = item;
+                    const isIncludeFieldName = Object.keys(row).includes(fieldName)
+                    if (typeof(item.render)=='function'){
+                            cellValue = item.render(row[fieldName])
+                    }else{
+                        if (isIncludeFieldName){
+                            cellValue = row[fieldName]
+                            cellValue = (cellValue == null || cellValue === '') ? DEFAULT_SIGN : cellValue.toString()
+                        }else{
+                            cellValue = DEFAULT_SIGN
+                        }
+                    }
+                    if (cellValue && cellRender) {
+                        cellValue = cellRender(cellValue)
+                    }
+                    return (<td key={name + '-' + fieldName} className={`${fieldName} ${className} `}>
+                        {cellValue || ''}
+                    </td>)
+                }) : Object.keys(row).map(key=>{
+                    let cellValue = row[key]
+                    if (cellValue && cellRender) {
+                        cellValue = cellRender(cellValue)
+                    }
+                    return (<td key={key.trim()} className={key.replace(' ','')}>{cellValue || DEFAULT_SIGN}</td>)
+                })}
+            </tr>
+        )
+    }
+
+    getFooter(){
+        const {totalData } = this.props;
+        const fields = this.getFieldsWithoutKeyField()
+        return (<tfoot>
+            <tr>
+                {
+                    fields && fields.filter(p=>p!=null).map(item => {
+                        const {name,fieldName} = item;
+                        const cellValue = totalData[fieldName]
+                        return <th key={name+'-'+fieldName}>{(cellValue == null) ? '' : cellValue.toString()}</th>
+                    })
+                }
+            </tr>
+        </tfoot>)
+    }
+
     render() {
-        const {totalData, groups=[], fields, data, pagination} = this.props;
+        const {data, pagination} = this.props;
+        const fields = this.getFieldsWithoutKeyField()
         return (
             <div className={'se-react-data-list ' + (this.props.className || '')}>
                 <div className="table-wrapper">
                     <table>
                         {this.getHeader()}
                         <tbody>
-                        {
-                            (data.length <= 0)? (<tr><td className="cell-notification" colSpan={fields.length}>nothing</td></tr>) :
+                        {(data.length <= 0)?
+                            (<tr><td className="cell-notification" colSpan={fields && fields.length}>nothing</td></tr>) :
                             data.map((row,index) => {
-                                const id = row[this.props.keyField || 'id'];
-                                return (
-                                    <tr key={id+'-'+index}>
-                                        {fields.map(item=>{
-                                            let cellValue = ''
-                                            const DEFAULT_SIGN = '—'
-                                            const {name, fieldName} = item;
-                                            const isIncludeFieldName = Object.keys(row).includes(fieldName)
-                                            if (typeof(item.render)=='function'){
-                                                    cellValue = item.render(row[fieldName])
-                                            }else{
-                                                if (isIncludeFieldName){
-                                                    cellValue = row[fieldName]
-                                                    cellValue = (cellValue === null || cellValue === '') ? DEFAULT_SIGN : cellValue.toString()
-                                                }else{
-                                                    cellValue = DEFAULT_SIGN
-                                                }
-                                            }
-                                            return (<td key={name + '-' + fieldName} className={'field-'+fieldName}>
-                                                {cellValue || ''}
-                                            </td>)
-                                        })}
-                                    </tr>
-                                )
+                                return this.getRow(row, index)
                             }
                         )}
                         </tbody>
-                        <tfoot>
-                        <tr>
-                            {fields.filter(p=>p!=null).map(item => {
-                                const {name,fieldName} = item;
-                                return <th key={name+'-'+fieldName}>{totalData[fieldName] || ''}</th>
-                            })}
-                        </tr>
-                        </tfoot>
+                        {this.getFooter()}
                     </table>
                 </div>
                 {this.props.enableRowsCount && (<div className="total-rows">Total:{pagination['rowsCount']} rows</div>)}
@@ -168,13 +191,23 @@ const Component = withTranslation(undefined, { withRef: true })(Component0)
 export default Component;
 
 Component.propTypes = {
+    className:PropTypes.string,
     enableRowsCount:PropTypes.bool,
     defaultLanguage:PropTypes.string,
     keyField:PropTypes.string,
     fields:PropTypes.arrayOf(PropTypes.exact({
         fieldName:PropTypes.string,
         name:PropTypes.string,
-        render:PropTypes.func
+        colSpan:PropTypes.number,
+        render:PropTypes.func,
+        className:PropTypes.string
+    })),
+    subFields:PropTypes.arrayOf(PropTypes.exact({
+        fieldName:PropTypes.string,
+        name:PropTypes.string,
+        colSpan:PropTypes.number,
+        render:PropTypes.func,
+        className:PropTypes.string
     })),
     pagination:PropTypes.exact({
         pageSize: PropTypes.number,
@@ -184,4 +217,5 @@ Component.propTypes = {
     totalData: PropTypes.object,
     rowsCount: PropTypes.number,
     onPageChange:PropTypes.func,
+    cellRender:PropTypes.func,
 }

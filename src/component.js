@@ -4,7 +4,7 @@ import "./component.scss"
 import LeftIcon from "./chevron-left-solid.svg"
 import RightIcon from "./chevron-right-solid.svg"
 import Dropdown from 'se-react-dropdown'
-import { useTranslation, withTranslation } from "react-i18next";
+import { withTranslation } from "react-i18next";
 import './i18n'
 
 class Component0 extends React.Component {
@@ -91,9 +91,8 @@ class Component0 extends React.Component {
                         const keyStr = fieldName
                         return <th key={keyStr} className={`${colSpan ? 'top-header':keyStr}`} rowSpan={rowSpan} colSpan={subFields && colSpan}>{name}</th>
                     })}
-
                 </tr>
-                {subFields && <tr>
+                {subFields && subFields.length && <tr>
                     {subFields.map(item=>{
                         const {name, fieldName, colSpan,rowSpan} = item;
                         const keyStr = fieldName.replace(/[- /:]/g,'_')
@@ -110,45 +109,60 @@ class Component0 extends React.Component {
         const {subFields=[], cellRender} = this.props
         const fields = this.getFieldsWithoutKeyField()
         const DEFAULT_SIGN = '—'
+        const getColumns = ()=>{
+            return fields.filter(item=>item.colSpan ==null || item.colSpan=='')
+                .concat(subFields)
+                .map(item=>{
+                let cellValue = ''
+                const {name, fieldName, className=''} = item;
+                const isIncludeFieldName = Object.keys(row).includes(fieldName)
+                if (typeof(item.render)=='function'){
+                        cellValue = item.render(row[fieldName])
+                }else{
+                    if (isIncludeFieldName){
+                        cellValue = row[fieldName]
+                        cellValue = (cellValue == null || cellValue === '') ? DEFAULT_SIGN : cellValue.toString()
+                    }else{
+                        cellValue = DEFAULT_SIGN
+                    }
+                }
+                if (cellValue && cellRender) {
+                    cellValue = cellRender(cellValue)
+                }
+                return (<td key={name + '-' + fieldName} className={`${fieldName} ${className} `}>
+                    {cellValue || ''}
+                </td>)
+            })
+        }
         return (
             <tr key={id+'-'+index}>
-                {fields && fields.length ? fields.filter(item=>item.colSpan ==null || item.colSpan=='')
-                    .concat(subFields)
-                    .map(item=>{
-                    let cellValue = ''
-                    const {name, fieldName, className=''} = item;
-                    const isIncludeFieldName = Object.keys(row).includes(fieldName)
-                    if (typeof(item.render)=='function'){
-                            cellValue = item.render(row[fieldName])
-                    }else{
-                        if (isIncludeFieldName){
-                            cellValue = row[fieldName]
-                            cellValue = (cellValue == null || cellValue === '') ? DEFAULT_SIGN : cellValue.toString()
-                        }else{
-                            cellValue = DEFAULT_SIGN
-                        }
-                    }
-                    if (cellValue && cellRender) {
-                        cellValue = cellRender(cellValue)
-                    }
-                    return (<td key={name + '-' + fieldName} className={`${fieldName} ${className} `}>
-                        {cellValue || ''}
-                    </td>)
-                }) : Object.keys(row).map(key=>{
-                    let cellValue = row[key]
-                    if (cellValue && cellRender) {
-                        cellValue = cellRender(cellValue)
-                    }
-                    return (<td key={key.trim()} className={key.replace(' ','')}>{cellValue || DEFAULT_SIGN}</td>)
-                })}
+                {fields && fields.length ? getColumns() : ''}
             </tr>
         )
     }
 
-    getFooter(){
-        const {totalData } = this.props;
+    getBody(){
+        const {data, isLoading} = this.props;
+        const {}=this.state
         const fields = this.getFieldsWithoutKeyField()
-        return (<tfoot>
+        let row = ''
+        if (isLoading){
+            row = (<tr><td className="loading-icon-wrapper" colSpan={fields && fields.length}><i className="fa fa-spinner"></i></td></tr>)
+        }else{
+            row = (data.length <= 0)?
+                (<tr><td className="cell-notification" colSpan={fields && fields.length}>nothing</td></tr>) :
+                data.map((row,index) => {
+                    return this.getRow(row, index)
+                }
+            )
+        }
+        return (<tbody>{row}</tbody>)
+    }
+
+    getFooter(){
+        const {totalData, isLoading} = this.props;
+        const fields = this.getFieldsWithoutKeyField()
+        return !isLoading && (<tfoot>
             <tr>
                 {
                     fields && fields.filter(p=>p!=null).map(item => {
@@ -162,25 +176,18 @@ class Component0 extends React.Component {
     }
 
     render() {
-        const {data, pagination} = this.props;
-        const fields = this.getFieldsWithoutKeyField()
+        const {pagination, isLoading, data} = this.props;
+        const showHeaderAndFooter = !isLoading && (data && data.length>0)
         return (
-            <div className={'se-react-data-list ' + (this.props.className || '')}>
+            <div className={'se-react-data-list ' + (this.props.className || '') + (isLoading?' loading':'')}>
                 <div className="table-wrapper">
                     <table>
-                        {this.getHeader()}
-                        <tbody>
-                        {(data.length <= 0)?
-                            (<tr><td className="cell-notification" colSpan={fields && fields.length}>nothing</td></tr>) :
-                            data.map((row,index) => {
-                                return this.getRow(row, index)
-                            }
-                        )}
-                        </tbody>
-                        {this.getFooter()}
+                        {showHeaderAndFooter && this.getHeader()}
+                        {this.getBody()}
+                        {showHeaderAndFooter && this.getFooter()}
                     </table>
                 </div>
-                {this.props.enableRowsCount && (<div className="total-rows">Total:{pagination['rowsCount']} rows</div>)}
+                {this.props.enableRowsCount && !isLoading && (<div className="total-rows">Total: {pagination['rowsCount']} rows</div>)}
                 {this.generatePagination()}
             </div>
         );
@@ -195,6 +202,7 @@ Component.propTypes = {
     enableRowsCount:PropTypes.bool,
     defaultLanguage:PropTypes.string,
     keyField:PropTypes.string,
+    isLoading: PropTypes.bool,
     fields:PropTypes.arrayOf(PropTypes.exact({
         fieldName:PropTypes.string,
         name:PropTypes.string,

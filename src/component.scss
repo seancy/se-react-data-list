@@ -32,6 +32,10 @@
 
   $space-between:10px;
 
+  tbody .loading-icon-wrapper {
+    text-align: center;
+  }
+
   .total-rows {
     text-align: right;
     margin-top: $space-between;

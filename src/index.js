@@ -29,8 +29,6 @@ let fields = [
     {name: 'Email', fieldName: 'Email'},
 ]
 
-
-
 class BaseReport extends React.Component{
     constructor(props){
         super(props)
@@ -49,6 +47,7 @@ class App extends BaseReport {
         //fetch data then place data and rowsCount into state
         this.state = {
             ...this.state,
+            isLoading: false
         }
 
         this.myRef = React.createRef();
@@ -60,13 +59,12 @@ class App extends BaseReport {
         this.myRef.current.resetPage()
     }
 
-
     fetchData(pageNo) {
         let data = {a1: '11', a2: '22'}
         let parametersStr = Object.keys(data).map(k => `${encodeURIComponent(k)}=${encodeURIComponent(data[k])}`).join('&')
 
         //const url = `real_data.json`
-        const url = 'course_report_time_spent.json'
+        const url = 'course_report.json'
         let toolbarData = {
             selectedFilterItems: [
                 {text: "Address", value: "De street"},
@@ -94,6 +92,7 @@ class App extends BaseReport {
             },
         }
 
+        this.setState({isLoading: true})
         $.ajax(url, {
             method:'get',
             dataType: 'json',
@@ -101,6 +100,7 @@ class App extends BaseReport {
             success:(json) => {
                 this.setState((s, p) => {
                     return {
+                        isLoading: false,
                         data: json.list,
                         totalData: json.total, //{email: 'total:', first_name: json.total},
                         rowsCount: json.pagination.rowsCount
@@ -145,7 +145,9 @@ class App extends BaseReport {
 
     getConfig(){
         const {dynamicFields, subFields}=this.getDynamicFields()
+        const {isLoading}=this.state
         return {
+            isLoading,
             fields:fields.map(item=>({...item})).concat(dynamicFields),
             subFields,
             pagination:{

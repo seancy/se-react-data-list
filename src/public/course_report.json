@@ -1,0 +1,28 @@
+
+{
+  "total": {
+    "Email": 30,
+    "City": false,
+    "Location": 0
+  },
+  "pagination": {
+    "rowsCount": 2
+  },
+  "list": [
+    {
+      "ID":75,
+      "Name": "High Land",
+      "Email": "verified@example.com",
+      "Country": "",
+      "Commercial Zone": "",
+      "Commercial Region": "",
+      "City": "Sea Corner",
+      "Location": "",
+      "Address 2": "False",
+      "Employee ID": "",
+      "Level": ""
+    }
+  ]
+}
+
+

@@ -2,6 +2,7 @@
 
 node ./r.js
 npm run transpile
+##npm run build
 npm publish --access public
 
 cd ../hawthorn/platform

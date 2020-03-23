@@ -3,6 +3,7 @@ import {render} from "react-dom";
 import Component from "./component";
 import './index.scss'
 import $ from "jquery";
+import {flatten} from 'lodash'
 
 const styles = {
     fontFamily: "sans-serif",
@@ -64,7 +65,8 @@ class App extends BaseReport {
         let parametersStr = Object.keys(data).map(k => `${encodeURIComponent(k)}=${encodeURIComponent(data[k])}`).join('&')
 
         //const url = `real_data.json`
-        const url = 'course_report.json'
+        //const url = 'course_report.json'
+        const url = 'course_report_time_spent2.json'
         let toolbarData = {
             selectedFilterItems: [
                 {text: "Address", value: "De street"},
@@ -134,11 +136,15 @@ class App extends BaseReport {
 
             dynamicFields = [...normalDynamicFields.map(key=>({name:key,fieldName:key})),
                 ...complexDynamicFields.map(key=>({name:key,fieldName:key, colSpan:countSpan(key)}))]
-            subFields = complexDynamicKeys.map(key=>{
-                const arr = key.split('/')
-                const keyL2 = arr[1]
-                return {name:keyL2,fieldName:key}
-            })
+            subFields = flatten(complexDynamicFields.map(keyL1=>{
+                return complexDynamicKeys.filter(key=>{
+                    return key.split('/')[0] == keyL1
+                }).map(key=>{
+                    const arr = key.split('/')
+                    const keyL2 = arr[1]
+                    return {name:keyL2,fieldName:key}
+                })
+            }))
         }
         return {dynamicFields, subFields}
     }

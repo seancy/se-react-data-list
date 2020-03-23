@@ -1,6 +1,6 @@
 {
   "name": "se-react-data-list",
-  "version": "1.0.30",
+  "version": "1.0.31",
   "main": "dist/component.js",
   "scripts": {
     "start": "webpack-dev-server --config webpack.dev.config.js ",
@@ -44,6 +44,7 @@
     "i18next": "^19.1.0",
     "i18next-browser-languagedetector": "^4.0.1",
     "jquery": "^3.4.1",
+    "lodash": "^4.17.15",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-i18next": "^11.3.1",

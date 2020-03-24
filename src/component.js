@@ -3,6 +3,8 @@ import PropTypes from 'prop-types'
 import "./component.scss"
 import LeftIcon from "./chevron-left-solid.svg"
 import RightIcon from "./chevron-right-solid.svg"
+import UpIcon from './sort-up-solid.svg'
+import DownIcon from './sort-down-solid.svg'
 import Dropdown from 'se-react-dropdown'
 import { withTranslation } from "react-i18next";
 import './i18n'
@@ -13,6 +15,7 @@ class Component0 extends React.Component {
         super(props, context);
 
         this.state = {
+            sort:'',
             pageNo:1 //props.pagination.pageNo
         };
 
@@ -55,32 +58,33 @@ class Component0 extends React.Component {
         this.setState({pageNo:item.value}, this.firePageChange)
     }
 
-    generatePagination(){
-        const {pageNo} = this.state;
-        const {pageSize, rowsCount} = this.props.pagination
-        let pageCount = Math.ceil(rowsCount / pageSize)
-        let pages = [...Array(pageCount).keys()].splice(1);
-        pages = [...pages, pageCount || 1]
-        pages = pages.map(p=>({value:p}))
-        const { t } = this.props;
-
-        return (<div className="pagination">
-                    <LeftIcon onClick={this.goPrevPage.bind(this)} className={"prev-page"+ (pageNo<=1 ? " disabled" : '')}/>
-                    <span>{t('Page')}</span>
-                    <Dropdown data={pages} value={pageNo} onChange={this.switchPage.bind(this)}/>
-                    <span>{t('of')} {pageCount}</span>
-                    <RightIcon onClick={this.goNextPage.bind(this)}
-                               className={'next-page' + (pageNo>pageCount-1 ? ' disabled' : '')}/>
-                </div>)
-    }
-
     getFieldsWithoutKeyField(){
         const {keyField,fields}=this.props
         return fields.filter(f=>f.fieldName && f.fieldName != keyField );
     }
 
+    sortColumn(fieldName){
+        let {sort} = this.state
+        if (sort.substr(1) == fieldName || sort == fieldName){
+            if (sort.startsWith('-')){
+                sort = '' //sort.substr(1)
+            }else{
+                sort = '-'+sort
+            }
+        }else{
+            sort = fieldName
+        }
+        this.setState({sort}, ()=>{
+            console.log(this.state.sort)
+            const {onSort}=this.props
+            onSort && onSort(sort)
+        })
+
+    }
+
     getHeader(){
         const {subFields} = this.props;
+        const {sort}=this.state
         const fields = this.getFieldsWithoutKeyField()
         return (
             <thead>
@@ -90,16 +94,19 @@ class Component0 extends React.Component {
                         const defaultRowSpan = subFields && !colSpan ? 2 : null
                         const {name, fieldName ,rowSpan=defaultRowSpan} = item;
                         const keyStr = formatFieldName(fieldName)
-                        return <th key={keyStr} className={`${colSpan ? 'top-header':keyStr}`} rowSpan={rowSpan} colSpan={subFields && colSpan}>{name}</th>
+                        return <th onClick={this.sortColumn.bind(this, fieldName)} key={keyStr} className={`${colSpan ? 'top-header':keyStr}`} rowSpan={rowSpan} colSpan={subFields && colSpan}>
+                            <span>{name}</span>
+                            {(sort.substr(1) == fieldName || sort == fieldName) && (!sort.startsWith('-')?<UpIcon/>:<DownIcon/>)}
+                        </th>
                     })}
                 </tr>
-                {subFields && subFields.length && <tr>
+                {subFields && subFields.length ? <tr>
                     {subFields.map(item=>{
                         const {name, fieldName, colSpan,rowSpan} = item;
                         const keyStr = formatFieldName(fieldName)
                         return <th key={keyStr} rowSpan={rowSpan} colSpan={colSpan}>{name}</th>
                     })}
-                </tr>}
+                </tr> : ''}
 
             </thead>
         )
@@ -176,6 +183,25 @@ class Component0 extends React.Component {
         </tfoot>)
     }
 
+    generatePagination(){
+        const {pageNo} = this.state;
+        const {pageSize, rowsCount} = this.props.pagination
+        let pageCount = Math.ceil(rowsCount / pageSize)
+        let pages = [...Array(pageCount).keys()].splice(1);
+        pages = [...pages, pageCount || 1]
+        pages = pages.map(p=>({value:p}))
+        const { t } = this.props;
+
+        return (<div className="pagination">
+                    <LeftIcon onClick={this.goPrevPage.bind(this)} className={"prev-page"+ (pageNo<=1 ? " disabled" : '')}/>
+                    <span>{t('Page')}</span>
+                    <Dropdown data={pages} value={pageNo} onChange={this.switchPage.bind(this)}/>
+                    <span>{t('of')} {pageCount}</span>
+                    <RightIcon onClick={this.goNextPage.bind(this)}
+                               className={'next-page' + (pageNo>pageCount-1 ? ' disabled' : '')}/>
+                </div>)
+    }
+
     render() {
         const {pagination, isLoading, data} = this.props;
         const showHeaderAndFooter = !isLoading && (data && data.length>0)
@@ -226,5 +252,6 @@ Component.propTypes = {
     totalData: PropTypes.object,
     rowsCount: PropTypes.number,
     onPageChange:PropTypes.func,
+    onSort:PropTypes.func,
     cellRender:PropTypes.func,
 }

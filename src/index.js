@@ -60,13 +60,15 @@ class App extends BaseReport {
         this.myRef.current.resetPage()
     }
 
-    fetchData(pageNo) {
-        let data = {a1: '11', a2: '22'}
-        let parametersStr = Object.keys(data).map(k => `${encodeURIComponent(k)}=${encodeURIComponent(data[k])}`).join('&')
+    fetchData(pageNo, sort='') {
+        //let data = {a1: '11', a2: '22'}
+        //let parametersStr = Object.keys(data).map(k => `${encodeURIComponent(k)}=${encodeURIComponent(data[k])}`).join('&')
 
         //const url = `real_data.json`
         //const url = 'course_report.json'
-        const url = 'course_report_time_spent2.json'
+        //const url = 'course_report_time_spent2.json'
+        const url = '/api/user/list/'
+
         let toolbarData = {
             selectedFilterItems: [
                 {text: "Address", value: "De street"},
@@ -80,7 +82,7 @@ class App extends BaseReport {
             endDate: "2020-02-07",
             exportType: "xls"
         }
-        let ajaxData = {
+        let ajaxData = {...{
             'report_type': 'learner_report',
             'courses_selected': [''],
             'query_tuples': toolbarData.selectedFilterItems.map(p => [p.text, p.value]),
@@ -92,7 +94,7 @@ class App extends BaseReport {
             'page': {
                 no: pageNo, size: 10
             },
-        }
+        }, ...{sort}}
 
         this.setState({isLoading: true})
         $.ajax(url, {
@@ -149,10 +151,15 @@ class App extends BaseReport {
         return {dynamicFields, subFields}
     }
 
+    sortTable(sort){
+        this.fetchData(1, sort)
+    }
+
     getConfig(){
         const {dynamicFields, subFields}=this.getDynamicFields()
         const {isLoading}=this.state
         return {
+            onSort:this.sortTable.bind(this),
             isLoading,
             fields:fields.map(item=>({...item})).concat(dynamicFields),
             subFields,

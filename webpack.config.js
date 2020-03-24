@@ -1,4 +1,3 @@
-
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
@@ -6,20 +5,20 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     entry: {
-        index:'./src/index.js',
-        component:'./src/component.js'
+        index: './src/index.js',
+        component: './src/component.js'
     },
-    output:{
+    output: {
         path: path.resolve(__dirname, 'dist'),
-        filename:'[name].js',
+        filename: '[name].js',
     },
-    module:{
-        rules:[
+    module: {
+        rules: [
             {
                 test: /\.(js|jsx)$/,
                 exclude: /(node_modules|build)/,
-                use:{
-                    loader:'babel-loader'
+                use: {
+                    loader: 'babel-loader'
                 }
             },
             {
@@ -52,20 +51,11 @@ module.exports = {
             }
         ]
     },
-    devServer:{
-        port: 8084,
-        contentBase: path.join(__dirname, 'dist'),
-        watchOptions: {
-            hot: true,
-            watchContentBase: true,
-            poll: true
-        }
-    },
-    plugins:[
+    plugins: [
         new MiniCssExtractPlugin(),
-        new HtmlWebpackPlugin({template:'./src/index.html'}),
+        new HtmlWebpackPlugin({template: './src/index.html'}),
         new CopyWebpackPlugin([
-            { from: 'src/public' }
+            {from: 'src/public'}
         ])
     ]
 }

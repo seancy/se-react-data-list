@@ -32,6 +32,19 @@
 
   $space-between:10px;
 
+  thead {
+    tr th {
+      span, svg {
+        vertical-align: middle;
+      }
+
+      svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
+  }
+
   tbody .loading-icon-wrapper {
     text-align: center;
   }

@@ -86,6 +86,9 @@ class Component0 extends React.Component {
         const {subFields} = this.props;
         const {sort}=this.state
         const fields = this.getFieldsWithoutKeyField()
+        const getSortIcon = (fieldName)=>{
+            return (sort.substr(1) == fieldName || sort == fieldName) && (!sort.startsWith('-')?<UpIcon/>:<DownIcon/>)
+        }
         return (
             <thead>
                 <tr>
@@ -95,8 +98,7 @@ class Component0 extends React.Component {
                         const {name, fieldName ,rowSpan=defaultRowSpan} = item;
                         const keyStr = formatFieldName(fieldName)
                         return <th onClick={this.sortColumn.bind(this, fieldName)} key={keyStr} className={`${colSpan ? 'top-header':keyStr}`} rowSpan={rowSpan} colSpan={subFields && colSpan}>
-                            <span>{name}</span>
-                            {(sort.substr(1) == fieldName || sort == fieldName) && (!sort.startsWith('-')?<UpIcon/>:<DownIcon/>)}
+                            <span>{name}</span>{getSortIcon(fieldName)}
                         </th>
                     })}
                 </tr>
@@ -104,7 +106,9 @@ class Component0 extends React.Component {
                     {subFields.map(item=>{
                         const {name, fieldName, colSpan,rowSpan} = item;
                         const keyStr = formatFieldName(fieldName)
-                        return <th key={keyStr} rowSpan={rowSpan} colSpan={colSpan}>{name}</th>
+                        return <th onClick={this.sortColumn.bind(this, fieldName)} key={keyStr} rowSpan={rowSpan} colSpan={colSpan}>
+                            <span>{name}</span>{getSortIcon(fieldName)}
+                        </th>
                     })}
                 </tr> : ''}
 

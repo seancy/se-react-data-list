@@ -67,19 +67,19 @@ class Component0 extends React.Component {
         let {sort} = this.state
         if (sort.substr(1) == fieldName || sort == fieldName){
             if (sort.startsWith('-')){
-                sort = '' //sort.substr(1)
-            }else{
-                sort = '-'+sort
+                sort = ''
+            }else if (sort.startsWith('+')){
+                sort = '-'+fieldName
+            } else{
+                sort = '+'+fieldName
             }
         }else{
-            sort = fieldName
+            sort = '+'+fieldName
         }
         this.setState({sort}, ()=>{
-            console.log(this.state.sort)
             const {onSort}=this.props
             onSort && onSort(sort)
         })
-
     }
 
     getHeader(){

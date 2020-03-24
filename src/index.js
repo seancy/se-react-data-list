@@ -94,7 +94,7 @@ class App extends BaseReport {
             'page': {
                 no: pageNo, size: 10
             },
-        }, ...{sort}}
+        }, ...(sort!=''?{sort}:{})}
 
         this.setState({isLoading: true})
         $.ajax(url, {

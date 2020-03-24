@@ -38,7 +38,7 @@ const proxy = {
   'GET /api/user/list/': (req, res)=>{
       let sort = req.query.sort || ''
       const desc = sort.startsWith('-')
-      sort = sort.replace('-','')
+      sort = sort.replace(/[\+\-]/,'')
       const json = {
           total:{
               age:list.reduce((prevVal, currVal)=>{ return prevVal + currVal.age }, 0)

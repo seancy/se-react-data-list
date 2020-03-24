@@ -6,6 +6,7 @@ import RightIcon from "./chevron-right-solid.svg"
 import Dropdown from 'se-react-dropdown'
 import { withTranslation } from "react-i18next";
 import './i18n'
+import {formatFieldName} from './common'
 
 class Component0 extends React.Component {
     constructor(props, context) {
@@ -88,14 +89,14 @@ class Component0 extends React.Component {
                         const {colSpan}=item
                         const defaultRowSpan = subFields && !colSpan ? 2 : null
                         const {name, fieldName ,rowSpan=defaultRowSpan} = item;
-                        const keyStr = fieldName
+                        const keyStr = formatFieldName(fieldName)
                         return <th key={keyStr} className={`${colSpan ? 'top-header':keyStr}`} rowSpan={rowSpan} colSpan={subFields && colSpan}>{name}</th>
                     })}
                 </tr>
                 {subFields && subFields.length && <tr>
                     {subFields.map(item=>{
                         const {name, fieldName, colSpan,rowSpan} = item;
-                        const keyStr = fieldName.replace(/[- /:]/g,'_')
+                        const keyStr = formatFieldName(fieldName)
                         return <th key={keyStr} rowSpan={rowSpan} colSpan={colSpan}>{name}</th>
                     })}
                 </tr>}
@@ -129,7 +130,7 @@ class Component0 extends React.Component {
                 if (cellValue && cellRender) {
                     cellValue = cellRender(cellValue)
                 }
-                return (<td key={name + '-' + fieldName} className={`${fieldName} ${className} `}>
+                return (<td key={name + '-' + fieldName} className={`${formatFieldName(fieldName)} ${className} `}>
                     {cellValue || ''}
                 </td>)
             })
@@ -168,7 +169,7 @@ class Component0 extends React.Component {
                     fields && fields.filter(p=>p!=null).map(item => {
                         const {name,fieldName} = item;
                         const cellValue = totalData[fieldName]
-                        return <th key={name+'-'+fieldName}>{(cellValue == null) ? '' : cellValue.toString()}</th>
+                        return <th key={name+'-'+fieldName} className={cellValue != null ? formatFieldName(fieldName):''}>{(cellValue == null) ? '' : cellValue.toString()}</th>
                     })
                 }
             </tr>

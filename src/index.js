@@ -3,7 +3,7 @@ import {render} from "react-dom";
 import Component from "./component";
 import './index.scss'
 import $ from "jquery";
-import {flatten} from 'lodash'
+import {flatten,get} from 'lodash'
 
 const styles = {
     fontFamily: "sans-serif",
@@ -36,6 +36,7 @@ class BaseReport extends React.Component{
     constructor(props){
         super(props)
         this.state = {
+            message:'',
             data: [],
             totalData: {},
             rowsCount: 0
@@ -60,6 +61,30 @@ class App extends BaseReport {
     loadData() {
         this.fetchData(1)
         this.myRef.current.resetPage()
+    }
+
+    loadError(){
+        //this.fetchData(1)
+        this.setState({isLoading: true})
+        const url = '/api/user/list/'
+        $.ajax(url, {
+            method:'get',
+            dataType: 'json',
+            data: {
+                show_error:true
+            },
+            success:(json) => {
+                this.setState((s, p) => {
+                    return {
+                        message: json.message,
+                        isLoading: false,
+                        data: json.list,
+                        totalData: json.total, //{email: 'total:', first_name: json.total},
+                        rowsCount: get(json,'pagination.rowsCount',0)
+                    }
+                })
+            }
+        })
     }
 
     fetchData(pageNo, sort='+id') {
@@ -106,10 +131,11 @@ class App extends BaseReport {
             success:(json) => {
                 this.setState((s, p) => {
                     return {
+                        message:'',
                         isLoading: false,
                         data: json.list,
                         totalData: json.total, //{email: 'total:', first_name: json.total},
-                        rowsCount: json.pagination.rowsCount
+                        rowsCount: get(json,'pagination.rowsCount',0)
                     }
                 })
             }
@@ -165,6 +191,7 @@ class App extends BaseReport {
         const {dynamicFields, subFields}=this.getDynamicFields()
         const {isLoading}=this.state
         return {
+            //message:this.state.message,
             onSort:this.sortTable.bind(this),
             isLoading,
             fields:fields.map(item=>({...item})).concat(dynamicFields),
@@ -183,7 +210,8 @@ class App extends BaseReport {
         const config = this.getConfig()
         return (
             <div style={styles}>
-                <button className="btn-load-data" onClick={this.loadData.bind(this)}>Load data</button>
+                <button className="btn-load-data" onClick={this.loadData.bind(this)}>Load Data</button>
+                <button className="btn-load-data" onClick={this.loadError.bind(this)}>Load Error</button>
                 <Component ref={this.myRef}
                            {...config} {...extraProps}
                            onPageChange={this.fetchData.bind(this)}

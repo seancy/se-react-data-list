@@ -36,8 +36,9 @@ const proxy = {
     },
   },
   'GET /api/user/list/': (req, res)=>{
-      const {page}=req.query
-      const {no, size}=page
+      const {page, show_error}=req.query
+      const {no, size}=(page || {})
+      if (show_error) return res.json({ message: "Unable to fetch data." })
       //console.log(page)
       let sort = req.query.sort || ''
       const desc = sort.startsWith('-')

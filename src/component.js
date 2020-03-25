@@ -154,12 +154,14 @@ class Component0 extends React.Component {
     }
 
     getBody(){
-        const {data, isLoading} = this.props;
+        const {data, isLoading, message} = this.props;
         const {}=this.state
         const fields = this.getFieldsWithoutKeyField()
         let row = ''
         if (isLoading){
             row = (<tr><td className="loading-icon-wrapper" colSpan={fields && fields.length}><i className="fa fa-spinner"></i></td></tr>)
+        }else if(message){
+            row = <tr><td className="cell-notification" colSpan={fields && fields.length}>{message}</td></tr>
         }else{
             row = (data.length <= 0)?
                 (<tr><td className="cell-notification" colSpan={fields && fields.length}>nothing</td></tr>) :
@@ -207,8 +209,8 @@ class Component0 extends React.Component {
     }
 
     render() {
-        const {pagination, isLoading, data} = this.props;
-        const showHeaderAndFooter = !isLoading && (data && data.length>0)
+        const {pagination, isLoading, data, message} = this.props;
+        const showHeaderAndFooter = !isLoading && !message && (data && data.length>0)
         return (
             <div className={'se-react-data-list ' + (this.props.className || '') + (isLoading?' loading':'')}>
                 <div className="table-wrapper">
@@ -229,6 +231,7 @@ const Component = withTranslation(undefined, { withRef: true })(Component0)
 export default Component;
 
 Component.propTypes = {
+    message:PropTypes.string,
     className:PropTypes.string,
     enableRowsCount:PropTypes.bool,
     defaultLanguage:PropTypes.string,

@@ -31,7 +31,7 @@ class Component0 extends React.Component {
 
     firePageChange(){
         const {onPageChange} = this.props
-        onPageChange && onPageChange(this.state.pageNo)
+        onPageChange && onPageChange(this.state.pageNo, this.state.sort)
     }
 
     goPrevPage(e){
@@ -78,7 +78,7 @@ class Component0 extends React.Component {
         }
         this.setState({sort}, ()=>{
             const {onSort}=this.props
-            onSort && onSort(sort)
+            onSort && onSort(sort, this.state.pageNo)
         })
     }
 

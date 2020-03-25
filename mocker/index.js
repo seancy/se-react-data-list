@@ -1,7 +1,7 @@
 //import list from './list'
 
 //console.log(list)
-const list = require('./list')
+const initialList = require('./list')
 //console.log(list.map)
 
 
@@ -36,25 +36,29 @@ const proxy = {
     },
   },
   'GET /api/user/list/': (req, res)=>{
+      const {page}=req.query
+      const {no, size}=page
+      //console.log(page)
       let sort = req.query.sort || ''
       const desc = sort.startsWith('-')
       sort = sort.replace(/[\+\-]/,'')
+      const list = initialList.sort((a,b)=>{
+          if (a[sort] > b[sort]){
+              return desc? -1 : 1;
+          }else if (b[sort] > a[sort]){
+              return desc? 1 : -1;
+          }else{
+              return 0
+          }
+      }).slice((no-1)*size, no*size)
       const json = {
           total:{
               age:list.reduce((prevVal, currVal)=>{ return prevVal + currVal.age }, 0)
           },
           pagination:{
-            rowsCount:2,
+            rowsCount:initialList.length,
           },
-          list:list.sort((a,b)=>{
-              if (a[sort] > b[sort]){
-                  return desc? -1 : 1;
-              }else if (b[sort] > a[sort]){
-                  return desc? 1 : -1;
-              }else{
-                  return 0
-              }
-          })
+          list
       }
       return res.json(json)
   },

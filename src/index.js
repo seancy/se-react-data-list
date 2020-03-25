@@ -13,6 +13,8 @@ const numRender={
     render:v=>`--${v}--`
 }
 
+const PAGE_SIZE = 5
+
 const extraProps = {
     cellRender: v=>{
         if ((v.startsWith('Yes') || v.startsWith('No')) && v.includes(':')){
@@ -60,7 +62,7 @@ class App extends BaseReport {
         this.myRef.current.resetPage()
     }
 
-    fetchData(pageNo, sort='') {
+    fetchData(pageNo, sort='+id') {
         //let data = {a1: '11', a2: '22'}
         //let parametersStr = Object.keys(data).map(k => `${encodeURIComponent(k)}=${encodeURIComponent(data[k])}`).join('&')
 
@@ -92,7 +94,7 @@ class App extends BaseReport {
             'format': toolbarData.exportType,
             'csrfmiddlewaretoken': 'nDou5pR169v76UwtX4XOpbQsSTLu6SexeWyd0ykjGR2ahYMV0OY7nddkYQqnT6ze',
             'page': {
-                no: pageNo, size: 10
+                no: pageNo, size: PAGE_SIZE
             },
         }, ...(sort!=''?{sort}:{})}
 
@@ -151,8 +153,12 @@ class App extends BaseReport {
         return {dynamicFields, subFields}
     }
 
-    sortTable(sort){
-        this.fetchData(1, sort)
+    sortTable(sort, pageNo){
+        if (sort == ''){
+            this.fetchData(pageNo)
+        }else{
+            this.fetchData(pageNo, sort)
+        }
     }
 
     getConfig(){
@@ -164,7 +170,7 @@ class App extends BaseReport {
             fields:fields.map(item=>({...item})).concat(dynamicFields),
             subFields,
             pagination:{
-                pageSize: 2, rowsCount: Number(this.state.rowsCount)
+                pageSize: PAGE_SIZE, rowsCount: Number(this.state.rowsCount)
             },
             keyField:"ID",
             defaultLanguage:"en",

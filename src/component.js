@@ -83,11 +83,14 @@ class Component0 extends React.Component {
     }
 
     getHeader(){
-        const {subFields} = this.props;
+        const {subFields, useFontAwesome} = this.props;
         const {sort}=this.state
         const fields = this.getFieldsWithoutKeyField()
+        const up = useFontAwesome ? <i className="fal fa-caret-up" /> : <UpIcon/>,
+            down = useFontAwesome ? <i className="fal fa-caret-down" /> : <DownIcon/>;
         const getSortIcon = (fieldName)=>{
-            return (sort.substr(1) == fieldName || sort == fieldName) && (!sort.startsWith('-')?<UpIcon/>:<DownIcon/>)
+            return (sort.substr(1) == fieldName || sort == fieldName) &&
+                (!sort.startsWith('-') ? up : down)
         }
         return (
             <thead>
@@ -196,14 +199,20 @@ class Component0 extends React.Component {
         let pages = [...Array(pageCount).keys()].splice(1);
         pages = [...pages, pageCount || 1]
         pages = pages.map(p=>({value:p}))
-        const { t } = this.props;
+        const { t, useFontAwesome } = this.props;
+
+        const Left = (props) => {
+            return useFontAwesome ? (<i {...{...props, className:`fal fa-chevron-left ${props.className}`}}/>) : (<LeftIcon {...props}/>)
+        }, Right = (props) => {
+            return useFontAwesome ? <i {...{...props, className:`fal fa-chevron-right ${props.className}`}}/> : <RightIcon {...props}/>;
+        }
 
         return (<div className="pagination">
-                    <LeftIcon onClick={this.goPrevPage.bind(this)} className={"prev-page"+ (pageNo<=1 ? " disabled" : '')}/>
+                    <Left onClick={this.goPrevPage.bind(this)} className={"prev-page"+ (pageNo<=1 ? " disabled" : '')}/>
                     <span>{t('Page')}</span>
                     <Dropdown data={pages} value={pageNo} onChange={this.switchPage.bind(this)}/>
                     <span>{t('of')} {pageCount}</span>
-                    <RightIcon onClick={this.goNextPage.bind(this)}
+                    <Right onClick={this.goNextPage.bind(this)}
                                className={'next-page' + (pageNo>pageCount-1 ? ' disabled' : '')}/>
                 </div>)
     }

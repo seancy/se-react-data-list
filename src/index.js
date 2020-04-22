@@ -202,6 +202,7 @@ class App extends BaseReport {
             keyField:"ID",
             defaultLanguage:"en",
             enableRowsCount:true,
+            useFontAwesome:true,
             ...this.state
         }
     }

@@ -132,7 +132,7 @@ class Component0 extends React.Component {
                 const {name, fieldName, className=''} = item;
                 const isIncludeFieldName = Object.keys(row).includes(fieldName)
                 if (typeof(item.render)=='function'){
-                        cellValue = item.render(row[fieldName])
+                        cellValue = item.render(row[fieldName], row)
                 }else{
                     if (isIncludeFieldName){
                         cellValue = row[fieldName]
@@ -194,7 +194,7 @@ class Component0 extends React.Component {
 
     generatePagination(){
         const {pageNo} = this.state;
-        const {pageSize, rowsCount} = this.props.pagination
+        const {pageSize=9999, rowsCount=0} = this.props.pagination
         let pageCount = Math.ceil(rowsCount / pageSize)
         let pages = [...Array(pageCount).keys()].splice(1);
         pages = [...pages, pageCount || 1]
@@ -230,7 +230,7 @@ class Component0 extends React.Component {
                     </table>
                 </div>
                 {this.props.enableRowsCount && !isLoading && (<div className="total-rows">Total: {pagination['rowsCount']} rows</div>)}
-                {this.generatePagination()}
+                {pagination && this.generatePagination()}
             </div>
         );
     }

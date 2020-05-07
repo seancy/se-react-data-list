@@ -17,7 +17,7 @@ const PAGE_SIZE = 5
 
 const extraProps = {
     cellRender: v=>{
-        if ((v.startsWith('Yes') || v.startsWith('No')) && v.includes(':')){
+        if (v.startsWith && (v.startsWith('Yes') || v.startsWith('No')) && v.includes(':')){
             const arr = v.split(':')
             return `${arr[0]=='Yes'?'Correct':'Wrong'} ${arr[1]}%` //
         }else{
@@ -27,7 +27,10 @@ const extraProps = {
 }
 
 let fields = [
-    {name: 'Name', fieldName: 'Name'},
+    {name: 'Name', fieldName: 'name', render:(value, item)=>{
+        return <a href={`#id=${item.id}`}>{value}</a> //'ss-'+value
+        }
+    },
     {name: 'City', fieldName: 'City'},
     {name: 'Email', fieldName: 'Email'},
 ]
@@ -199,6 +202,8 @@ class App extends BaseReport {
             pagination:{
                 pageSize: PAGE_SIZE, rowsCount: Number(this.state.rowsCount)
             },
+            //pagination:false,
+
             keyField:"ID",
             defaultLanguage:"en",
             enableRowsCount:true,

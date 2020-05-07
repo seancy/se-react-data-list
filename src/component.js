@@ -177,17 +177,17 @@ class Component0 extends React.Component {
     }
 
     getFooter(){
-        const {totalData, isLoading} = this.props;
+        const {totalData, isLoading, subFields} = this.props;
         const fields = this.getFieldsWithoutKeyField()
+        const cellRender=item=>{
+            const {name,fieldName, colSpan} = item;
+            const cellValue = totalData[fieldName]
+            return !colSpan && <th key={name+'-'+fieldName} className={cellValue != null ? formatFieldName(fieldName):''}>{(cellValue == null) ? '' : cellValue.toString()}</th>
+        }
         return !isLoading && (<tfoot>
             <tr>
-                {
-                    fields && fields.filter(p=>p!=null).map(item => {
-                        const {name,fieldName} = item;
-                        const cellValue = totalData[fieldName]
-                        return <th key={name+'-'+fieldName} className={cellValue != null ? formatFieldName(fieldName):''}>{(cellValue == null) ? '' : cellValue.toString()}</th>
-                    })
-                }
+                {fields && fields.filter(p=>p!=null).map(cellRender)}
+                {subFields && subFields.map(cellRender)}
             </tr>
         </tfoot>)
     }

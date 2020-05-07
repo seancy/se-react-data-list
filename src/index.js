@@ -159,8 +159,6 @@ class App extends BaseReport {
                 })
             const complexDynamicKeys = dynamicKeys.filter(key=>key.split('/')[1])
             const complexDynamicKeysL1 = complexDynamicKeys.map(key=>key.split('/')[0])
-            //const complexDynamicKeysL2 = complexDynamicKeys.map(key=>key.split('/')[1])
-
             const normalDynamicFields = dynamicKeys.filter(key=>!key.split('/')[1])
             const complexDynamicFields = [...new Set(complexDynamicKeys.map(key=>key.split('/')[0]))]
             const countSpan = (key)=>{

@@ -194,7 +194,7 @@ class App extends BaseReport {
         return {
             //message:this.state.message,
             onSort:this.sortTable.bind(this),
-            isLoading,
+            isLoading, emptyText:'nothing', totalRowsText:'Total: * rows',
             fields:fields.map(item=>({...item})).concat(dynamicFields),
             subFields,
             pagination:{

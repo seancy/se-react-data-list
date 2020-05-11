@@ -4,14 +4,14 @@ let list = [
         name: 'BB2',
         'user name': 'kenny',
         'home / address': 'Fu Zhou Road',
-        'home / number': '666',
+        'home / number': 'Yes:666',
         age: 4
     }, {
         id: 2,
         name: 'Sky walker',
         'user name': 'bumpy',
         'home / address': 'Yan An Road',
-        'home / number': '777',
+        'home / number': 'No:777',
         age: 6
     }, {
         id: 3,

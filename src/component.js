@@ -142,7 +142,7 @@ class Component0 extends React.Component {
                     }
                 }
                 if (cellValue && cellRender) {
-                    cellValue = cellRender(cellValue)
+                    cellValue = cellRender(cellValue,row, item)
                 }
                 return (<td key={name + '-' + fieldName} className={`${formatFieldName(fieldName)} ${className} `}>
                     {cellValue || ''}
@@ -157,17 +157,17 @@ class Component0 extends React.Component {
     }
 
     getBody(){
-        const {data, isLoading, message} = this.props;
+        const {data, isLoading, message, emptyText='nothing'} = this.props;
         const {}=this.state
         const fields = this.getFieldsWithoutKeyField()
         let row = ''
         if (isLoading){
-            row = (<tr><td className="loading-icon-wrapper" colSpan={fields && fields.length}><i className="fa fa-spinner"></i></td></tr>)
+            row = (<tr><td className="loading-icon-wrapper" colSpan={fields && fields.length}><i className="fa fa-spinner fa-spin"></i></td></tr>)
         }else if(message){
             row = <tr><td className="cell-notification" colSpan={fields && fields.length}>{message}</td></tr>
         }else{
             row = (data.length <= 0)?
-                (<tr><td className="cell-notification" colSpan={fields && fields.length}>nothing</td></tr>) :
+                (<tr><td className="cell-notification" colSpan={fields && fields.length}>{emptyText}</td></tr>) :
                 data.map((row,index) => {
                     return this.getRow(row, index)
                 }
@@ -218,7 +218,7 @@ class Component0 extends React.Component {
     }
 
     render() {
-        const {pagination, isLoading, data, message} = this.props;
+        const {pagination, isLoading, data, message,totalRowsText} = this.props;
         const showHeaderAndFooter = !isLoading && !message && (data && data.length>0)
         return (
             <div className={'se-react-data-list ' + (this.props.className || '') + (isLoading?' loading':'')}>
@@ -229,7 +229,7 @@ class Component0 extends React.Component {
                         {showHeaderAndFooter && this.getFooter()}
                     </table>
                 </div>
-                {this.props.enableRowsCount && !isLoading && (<div className="total-rows">Total: {pagination['rowsCount']} rows</div>)}
+                {this.props.enableRowsCount && !isLoading && (<div className="total-rows">{(totalRowsText || 'Total: * rows').replace('*', pagination['rowsCount'])}</div>)}
                 {pagination && this.generatePagination()}
             </div>
         );
@@ -246,6 +246,8 @@ Component.propTypes = {
     defaultLanguage:PropTypes.string,
     keyField:PropTypes.string,
     isLoading: PropTypes.bool,
+    emptyText:PropTypes.string,
+    totalRowsText:PropTypes.string,
     fields:PropTypes.arrayOf(PropTypes.exact({
         fieldName:PropTypes.string,
         name:PropTypes.string,

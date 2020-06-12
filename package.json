@@ -1,6 +1,6 @@
 {
   "name": "se-react-data-list",
-  "version": "1.0.47",
+  "version": "1.0.49",
   "main": "dist/component.js",
   "scripts": {
     "start": "webpack-dev-server --config webpack.dev.config.js ",

@@ -132,7 +132,7 @@ class Component0 extends React.Component {
                 const {name, fieldName, className=''} = item;
                 const isIncludeFieldName = Object.keys(row).includes(fieldName)
                 if (typeof(item.render)=='function'){
-                        cellValue = item.render(row[fieldName], row)
+                        cellValue = item.render(row[fieldName], row,item)
                 }else{
                     if (isIncludeFieldName){
                         cellValue = row[fieldName]
@@ -229,7 +229,7 @@ class Component0 extends React.Component {
                         {showHeaderAndFooter && this.getFooter()}
                     </table>
                 </div>
-                {this.props.enableRowsCount && !isLoading && (<div className="total-rows">{(totalRowsText || 'Total: * rows').replace('*', pagination['rowsCount'])}</div>)}
+                {this.props.enableRowsCount && pagination && !isLoading && (<div className="total-rows">{(totalRowsText || 'Total: * rows').replace('*', pagination['rowsCount'])}</div>)}
                 {pagination && this.generatePagination()}
             </div>
         );

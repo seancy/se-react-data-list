@@ -218,7 +218,7 @@ class Component0 extends React.Component {
     }
 
     render() {
-        const {pagination, isLoading, data, message,totalRowsText} = this.props;
+        const {pagination, isLoading, data, message, totalRowsText, defaultLanguage} = this.props;
         const showHeaderAndFooter = !isLoading && !message && (data && data.length>0)
         return (
             <div className={'se-react-data-list ' + (this.props.className || '') + (isLoading?' loading':'')}>
@@ -229,7 +229,11 @@ class Component0 extends React.Component {
                         {showHeaderAndFooter && this.getFooter()}
                     </table>
                 </div>
-                {this.props.enableRowsCount && pagination && !isLoading && (<div className="total-rows">{(totalRowsText || 'Total: * rows').replace('*', pagination['rowsCount'])}</div>)}
+                {this.props.enableRowsCount && pagination && !isLoading && (
+                    <div className="total-rows">{(totalRowsText || 'Total: * rows').replace(
+                        '*', defaultLanguage ? Number(pagination['rowsCount']).toLocaleString(defaultLanguage) : pagination['rowsCount']
+                    )}</div>
+                )}
                 {pagination && this.generatePagination()}
             </div>
         );
